@@ -1,0 +1,141 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${namePBI}  Testowy PBI
+${descriptionPBI}  Testowanie dodawania pbi
+${priority}  10
+${storyPoints}  7
+${editNamePBI}  Edytowany PBI
+${teamPBI}  TTF - First Test Team
+${sprint}  first TEST
+${status}  Preassigned
+${editStatus}  Done
+
+*** Test Cases ***
+Add, edit and delete PBI
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  pbis
+    checkSpecyficTitle  pbis
+    checkHeader  Backlog
+    checkContent  pbis
+    clickPbiActionButton  new pbi
+    waitFor  pbiFormTitle
+    checkSpecyficTitle  new pbi
+    checkHeader  Add PBI
+    ${pbi}  fillPbiForm  ${namePBI}  ${descriptionPBI}  ${priority}  ${storyPoints}  ${teamPBI}  ${sprint}
+    ...  ${status}  po
+    clickPbiActionButton  submit form
+    checkTitle  Backlog
+    ${pbiId}  getLastPbi
+    checkRowInPbiTable  ${pbi}  ${pbiId}
+    checkPbiDetails  ${pbi}  ${pbiId}
+    clickPbiActionButton  edit pbi
+    ${pbi2}  fillPbiForm  ${editNamePBI}  ${descriptionPBI}  ${priority}  ${storyPoints}  ${teamPBI}  ${sprint}
+    ...  ${status}  po
+    clickPbiActionButton  submit form
+    checkRowInPbiTable  ${pbi2}  ${pbiId}
+    checkPbiDetails  ${pbi2}  ${pbiId}
+    clickPbiActionButton  delete pbi
+    checkRowInPbiTable  ${pbi2}  ${pbiId}  True
+    countRows  PBIs  idPBI  ${pbiId}  0
+
+PBI candidate for sprint
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  pbis
+    checkSpecyficTitle  pbis
+    checkHeader  Backlog
+    checkContent  pbis
+    clickPbiActionButton  new pbi
+    waitFor  pbiFormTitle
+    checkSpecyficTitle  new pbi
+    checkHeader  Add PBI
+    ${pbi}  fillPbiForm  ${namePBI}  ${descriptionPBI}  ${priority}  ${storyPoints}  -  -
+    ...  New  po
+    clickPbiActionButton  submit form
+    checkTitle  Backlog
+    ${pbiId}  getLastPbi
+    clickOn  pbi${pbiId}DetailsLink
+    clickPbiActionButton  edit pbi
+    ${pbi2}  fillPbiForm  ${editNamePBI}  ${descriptionPBI}  ${priority}  ${storyPoints}  -  ${sprint}
+    ...  Proposed for sprint  po
+    clickPbiActionButton  submit form
+    checkRowInPbiTable  ${pbi2}  ${pbiId}
+    checkPbiDetails  ${pbi2}  ${pbiId}
+    clickPbiActionButton  delete pbi
+    checkRowInPbiTable  ${pbi2}  ${pbiId}  True
+    countRows  PBIs  idPBI  ${pbiId}  0
+
+PBI pre-assgined for team
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  pbis
+    checkSpecyficTitle  pbis
+    checkHeader  Backlog
+    checkContent  pbis
+    clickPbiActionButton  new pbi
+    waitFor  pbiFormTitle
+    checkSpecyficTitle  new pbi
+    checkHeader  Add PBI
+    ${pbi}  fillPbiForm  ${namePBI}  ${descriptionPBI}  ${priority}  ${storyPoints}  -  -
+    ...  New  po
+    clickPbiActionButton  submit form
+    checkTitle  Backlog
+    ${pbiId}  getLastPbi
+    clickOn  pbi${pbiId}DetailsLink
+    clickPbiActionButton  edit pbi
+    ${pbi2}  fillPbiForm  ${editNamePBI}  ${descriptionPBI}  ${priority}  ${storyPoints}  ${teamPBI}  ${sprint}
+    ...  Preassigned  po
+    clickPbiActionButton  submit form
+    checkRowInPbiTable  ${pbi2}  ${pbiId}
+    checkPbiDetails  ${pbi2}  ${pbiId}
+    clickPbiActionButton  delete pbi
+    checkRowInPbiTable  ${pbi2}  ${pbiId}  True
+    countRows  PBIs  idPBI  ${pbiId}  0
+
+Setting estimation
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre
+    login  owner
+    goToPage  pbis
+    checkSpecyficTitle  pbis
+    clickPbiActionButton  new pbi
+    waitFor  pbiFormTitle
+    checkSpecyficTitle  new pbi
+    checkHeader  Add PBI
+    ${pbi}  fillPbiForm  ${namePBI}  ${descriptionPBI}  0  0  ${teamPBI}  ${sprint}
+    ...  Preassigned  po
+    clickPbiActionButton  submit form
+    checkTitle  Backlog
+    logout
+    waitFor  loginInput
+    login  master
+    goToPage  pbis
+    checkSpecyficTitle  pbis
+    ${pbiId}  getLastPbi
+    clickOn  pbi${pbiId}DetailsLink
+    clickPbiActionButton  edit pbi
+    ${pbi2}  fillPbiForm  ${namePBI}  ${descriptionPBI}  0  666  ${teamPBI}  ${sprint}
+    ...  Committed  sm
+    clickPbiActionButton  submit form
+    checkRowInPbiTable  ${pbi2}  ${pbiId}
+    checkPbiDetails  ${pbi2}  ${pbiId}
+    countRows  PBIs  idPBI  ${pbiId}  1
+
+*** Keywords ***
+ClearAfterTest
+    deleteTestPackage
+    Log  Clearing after test
+    Close browser
+

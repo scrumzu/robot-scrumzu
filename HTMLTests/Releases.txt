@@ -1,0 +1,52 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${dateFrom}  2013-01-01
+${dateTo}  2013-12-31
+${editDateFrom}  2012-12-12
+${editDateTo}  2012-12-12
+${nameRelease}  Release TEST
+${editNameRelease}  Edited Realase TEST
+
+*** Test Cases ***
+Add, edit and delete Release
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  releases
+    checkSpecyficTitle  releases
+    checkHeader  Releases
+    checkContent  releases
+    clickReleaseActionButton  new release
+    waitFor  releaseFormDateFrom
+    checkSpecyficTitle  new release
+    checkHeader  Add release
+    ${release}  fillReleaseForm  ${nameRelease}  ${dateFrom}  ${dateTo}
+    clickReleaseActionButton  submit form
+    waitFor  releaseListTable
+    checkSpecyficTitle  releases
+    ${releaseId}  getLastRelease
+    checkHeader  Releases
+    checkRowInReleaseTable  ${release}  ${releaseId}
+    checkReleaseDetails  ${release}  ${releaseId}
+    clickReleaseActionButton  edit release
+    ${release2}  fillReleaseForm  ${editNameRelease}  ${dateFrom}  ${dateTo}
+    clickReleaseActionButton  submit form
+    checkHeader  Releases
+    clickOn  release${releaseId}DetailsLink
+    clickReleaseActionButton  delete release
+    checkHeader  Releases
+    checkRowInReleaseTable  ${release2}  ${releaseId}  True
+    countRows  Releases  idRelease  ${releaseId}  0
+
+*** Keywords ***
+ClearAfterTest
+    deleteTestPackage
+    Comment  deleteRelease  ${releaseId}
+    Log  Clearing after test
+    Close browser
+

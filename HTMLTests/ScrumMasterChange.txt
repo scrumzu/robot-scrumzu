@@ -1,0 +1,57 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${nameTeam}  Changing Team
+${descriptionTeam}  Team for scrum master change test
+${projectTeam}  TEST
+${projectName}  Testing Project
+${sm}  sm
+${sm2}  41
+${keyTeam}  SMC
+${editNameTeam}  Scrum Change
+
+*** Test Cases ***
+ScrumMasterChange
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  master
+    goToPage  teams
+    checkSpecyficTitle  teams
+    checkHeader  Teams
+    checkContent  teams
+    clickTeamActionButton  new team
+    waitFor  teamFormName
+    checkSpecyficTitle  new team
+    checkHeader  Add team
+    ${team}  fillTeamForm  ${nameTeam}  ${keyTeam}  ${descriptionTeam}  ${projectTeam}  ${projectName}  ${sm}
+    clickTeamActionButton  submit form
+    waitFor  teamListTable
+    checkTitle  Teams
+    ${teamId}  getLastTeam
+    clickOn  team${teamId}DetailsLink
+    clickTeamActionButton  edit team
+    ${team2}  fillTeamForm  ${editNameTeam}  ${keyTeam}  ${descriptionTeam}  ${projectTeam}  ${projectName}  ${sm2}
+    clickTeamActionButton  submit form
+    waitFor  teamListTable
+    logout
+    login  master2
+    goToPage  teams
+    checkSpecyficTitle  teams
+    checkHeader  Teams
+    checkContent  teams
+    ${teamId}  getLastTeam
+    clickOn  team${teamId}DetailsLink
+    waitFor  teamDetailsHeader
+    clickTeamActionButton  edit team
+    countRows  Teams  idTeam  ${teamId}  1
+
+*** Keywords ***
+ClearAfterTest
+    deleteTestPackage
+    Log  Clearing after test
+    Close browser
+

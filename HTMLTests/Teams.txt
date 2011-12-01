@@ -1,0 +1,53 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${descriptionTeam}  Testowe operacje na Team'ach
+${projectTeam}  TEST
+${editNameTeam}  Edytowany Team
+${projectName}  Testing Project
+${sm}  3
+${nameTeam}  Testowy Team
+${keyTeam}  TST
+
+*** Test Cases ***
+Add, edit and delete Teams
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  master
+    goToPage  teams
+    checkSpecyficTitle  teams
+    checkHeader  Teams
+    checkContent  teams
+    clickTeamActionButton  new team
+    waitFor  teamFormName
+    checkSpecyficTitle  new team
+    checkHeader  Add team
+    ${team}  fillTeamForm  ${nameTeam}  ${keyTeam}  ${descriptionTeam}  ${projectTeam}  ${projectName}  ${sm}
+    clickTeamActionButton  submit form
+    waitFor  teamListTable
+    checkTitle  Teams
+    ${teamId}  getLastTeam
+    checkRowInTeamTable  ${team}  ${teamId}
+    checkTeamDetails  ${team}  ${teamId}
+    clickTeamActionButton  edit team
+    waitFor  teamFormName
+    ${team2}  fillTeamForm  ${editNameTeam}  ${keyTeam}  ${descriptionTeam}  ${projectTeam}  ${projectName}  ${sm}
+    clickTeamActionButton  submit form
+    waitFor  teamListTable
+    checkRowInTeamTable  ${team2}  ${teamId}
+    checkTeamDetails  ${team2}  ${teamId}
+    clickTeamActionButton  delete
+    checkRowInTeamTable  ${team2}  ${teamId}  True
+    countRows  Teams  idTeam  ${teamId}  0
+
+*** Keywords ***
+ClearAfterTest
+    deleteTestPackage
+    Comment  deleteTeam  ${teamId}
+    Log  Clearing after test
+    Close browser
+

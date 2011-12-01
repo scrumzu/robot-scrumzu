@@ -1,0 +1,24 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Test Cases ***
+Login, check role, log out
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    checkUserRole  owner
+    logout
+    login  master
+    checkUserRole  master
+    logout
+    login  user
+    checkUserRole  user
+    logout
+
+*** Keywords ***
+ClearAfterTest
+    Log  Clearing after test
+    Close browser
+

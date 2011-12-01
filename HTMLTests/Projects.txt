@@ -1,0 +1,56 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${nameProject}  aaTest Project
+${keyProject}  aaTP
+${descriptionProject}  Descriptive description
+${urlProject}  www.google.com
+${ownerProject}  SSPP
+${versionProject}  2.9
+${editNameProject}  Edited test project
+${editKeyProject}  ETP
+
+*** Test Cases ***
+Add, edit and delete Project
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  projects
+    checkSpecyficTitle  projects
+    checkHeader  Projects
+    checkContent  projects
+    clickProjectActionButton  new project
+    waitFor  projectFormName
+    checkSpecyficTitle  new project
+    checkHeader  Add project
+    ${project}  fillProjectForm  ${nameProject}  ${keyProject}  ${descriptionProject}  ${urlProject}  ${ownerProject}  ${versionProject}
+    ...  null
+    clickProjectActionButton  submit form
+    checkHeader  Projects
+    checkSpecyficTitle  projects
+    ${projectId}  getLastProject
+    checkHeader  Projects
+    checkRowInProjectTable  ${project}  ${projectId}
+    checkProjectDetails  ${project}  ${projectId}
+    clickProjectActionButton  edit project
+    ${project2}  fillProjectForm  ${editNameProject}  ${editKeyProject}  ${descriptionProject}  ${urlProject}  ${ownerProject}  ${versionProject}
+    ...  null
+    clickProjectActionButton  submit form
+    checkHeader  Projects
+    checkRowInProjectTable  ${project2}  ${projectId}
+    checkProjectDetails  ${project2}  ${projectId}
+    clickProjectActionButton  delete project
+    checkRowInProjectTable  ${project2}  ${projectId}  True
+    countRows  Projects  idProject  ${projectId}  0
+
+*** Keywords ***
+ClearAfterTest
+    deleteTestPackage
+    deleteProject  ${projectId}
+    Log  Clearing after test
+    Close browser
+

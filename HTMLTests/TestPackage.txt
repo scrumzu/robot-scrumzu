@@ -1,0 +1,21 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Test Cases ***
+Init
+    Comment  openScrumzuAtLocalhost  ff
+    Comment  login  owner
+    testPackage
+    Comment  deleteTestPackage
+
+Delete
+    Comment  testPackage
+    deleteTestPackage
+
+*** Keywords ***
+ClearAfterTest
+    Log  Clearing after test
+    Close browser
+

@@ -1,0 +1,55 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${dateFrom}  2012-10-11
+${dateTo}  2013-10-11
+${status}  Started
+${editDateFrom}  2012-12-12
+${editDateTo}  2012-12-12
+${editStatus}  Started
+${nameSprint}  Sprint test
+${editNameSprint}  Edited test Sprint
+
+*** Test Cases ***
+Add, edit and delete Sprint
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  sprints
+    checkSpecyficTitle  sprints
+    checkHeader  Sprints
+    checkContent  sprints
+    clickSprintActionButton  new sprint
+    waitFor  sprintFormDateFrom
+    checkSpecyficTitle  new sprint
+    checkHeader  Add sprint
+    ${sprint}  fillSprintForm  ${nameSprint}  ${dateFrom}  ${dateTo}  ${status}
+    clickSprintActionButton  submit form
+    waitFor  sprintListTable
+    checkSpecyficTitle  sprints
+    ${sprintId}  getLastSprint
+    checkHeader  Sprints
+    checkRowInSprintTable  ${sprint}  ${sprintId}
+    checkSprintDetails  ${sprint}  ${sprintId}
+    clickSprintActionButton  edit sprint
+    ${sprint2}  fillSprintForm  ${editNameSprint}  ${dateFrom}  ${dateTo}  ${editStatus}
+    clickSprintActionButton  submit form
+    checkHeader  Sprints
+    checkRowInSprintTable  ${sprint2}  ${sprintId}
+    checkSprintDetails  ${sprint2}  ${sprintId}
+    clickSprintActionButton  delete sprint
+    checkHeader  Sprints
+    checkRowInSprintTable  ${sprint2}  ${sprintId}  True
+    countRows  Sprints  idSprint  ${sprintId}  0
+
+*** Keywords ***
+ClearAfterTest
+    deleteTestPackage
+    Comment  deleteSprint  ${sprintId}
+    Log  Clearing after test
+    Close browser
+

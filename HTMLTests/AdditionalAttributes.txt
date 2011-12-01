@@ -1,0 +1,78 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${namePBI}  Testowy PBI
+${descriptionPBI}  Testowanie dodawania pbi
+${priority}  10
+${storyPoints}  0
+${dateDeadline}  2015-10-05
+${editNamePBI}  Edytowany PBI
+${teamPBI}  TTF - First Test Team
+${sprint}  first TEST
+${status}  Preassigned
+${editStatus}  Done
+
+*** Test Cases ***
+project specific attributes add, check pbi add form, delete attribute
+    Comment  deleteTestPackageTM
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ie
+    login  owner
+    goToPage  TEST
+    checkSpecyficTitle  TEST
+    Comment  checkHeader  Projects
+    checkContent  testAtr
+    clickProjectActionButton  add atr
+    waitFor  addAttributeForm
+    checkSpecyficTitle  new atr
+    checkHeader  Add attribute
+    ${attribute1}  fillAttributeForm  String  STRING
+    clickProjectActionButton  submit form
+    ${attributeId1}  getLastAttribute
+    checkSpecyficTitle  TEST
+    checkContent  testAtr
+    clickProjectActionButton  add atr
+    waitFor  addAttributeForm
+    checkSpecyficTitle  new atr
+    checkHeader  Add attribute
+    ${attribute2}  fillAttributeForm  Double  DOUBLE
+    clickProjectActionButton  submit form
+    ${attributeId2}  getLastAttribute
+    ${attributes}  makeList  ${attribute1}  ${attribute2}
+    checkSpecyficTitle  TEST
+    checkContent  testAtr
+    goToPage  pbis
+    checkSpecyficTitle  pbis
+    checkHeader  Backlog
+    checkContent  pbis
+    clickPbiActionButton  new pbi
+    waitFor  pbiFormTitle
+    checkSpecyficTitle  new pbi
+    checkHeader  Add PBI
+    ${a}  makeDictionary  string  name  double  23
+    ${pbi}  fillPbiForm  ${namePBI}  ${descriptionPBI}  ${priority}  ${storyPoints}  ${teamPBI}  ${sprint}
+    ...  ${status}  po  ${a}
+    clickPbiActionButton  submit form
+    checkTitle  Backlog
+    ${pbiId}  getLastPbi
+    checkRowInPbiTable  ${pbi}  ${pbiId}  None  ${attributes}
+    goToPage  TEST
+    ${attributesIds}  makeList  ${attributeId1}  ${attributeId2}
+    selectCheckboxes  ${attributesIds}
+    clickProjectActionButton  delete atr
+    countRows  Attributes  idAttribute  ${attributeId1}  0
+    countRows  Attributes  idAttribute  ${attributeId2}  0
+
+*** Keywords ***
+ClearAfterTest
+    deletePbi  ${pbiId}
+    deleteAttribute  ${attributeId1}
+    deleteAttribute  ${attributeId2}
+    deleteTestPackageTM
+    Log  Clearing after test
+    Close browser
+

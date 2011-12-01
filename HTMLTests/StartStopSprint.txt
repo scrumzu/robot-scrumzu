@@ -1,0 +1,48 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${name}  TS1
+${dateFrom}  2010-11-12
+${dateTo}  2011-01-12
+${status}  Created
+
+*** Test Cases ***
+Add new sprint, and change statuses: created -> started -> ended
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  sprints
+    checkSpecyficTitle  sprints
+    checkHeader  Sprints
+    checkContent  sprints
+    clickSprintActionButton  new sprint
+    waitFor  addSprintForm
+    checkSpecyficTitle  new sprint
+    checkHeader  Add sprint
+    ${sprint}  fillSprintForm  ${name}  ${dateFrom}  ${dateTo}  ${status}
+    clickProjectActionButton  submit form
+    waitFor  sprintListTable
+    checkSpecyficTitle  sprints
+    ${sprintId}  getLastSprint
+    checkHeader  Sprints
+    checkRowInSprintTable  ${sprint}  ${sprintId}
+    checkSprintDetails  ${sprint}  ${sprintId}
+    goToPage  sprints
+    selectCheckbox  ${sprintId}
+    clickSprintActionButton  start sprint
+    checkStatusInList  sprint  ${sprintId}  Started
+    selectCheckbox  ${sprintId}
+    clickSprintActionButton  end sprint
+    checkStatusInList  sprint  ${sprintId}  Ended
+
+*** Keywords ***
+ClearAfterTest
+    deleteTestPackage
+    Comment  deleteSprint  ${sprintId}
+    Log  Clearing after test
+    Close browser
+

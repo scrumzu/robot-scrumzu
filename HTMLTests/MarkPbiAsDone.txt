@@ -1,0 +1,52 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Variables ***
+${namePBI}  Testowy PBI
+${descriptionPBI}  Testowanie dodawania pbi
+${priority}  10
+${storyPoints}  7
+${dateDeadline}  2015-10-05
+${editNamePBI}  Edytowany PBI
+${teamPBI}  TTF - First Test Team
+${sprint}  first TEST
+${status}  Preassigned
+${editStatus}  Done
+
+*** Test Cases ***
+Add new PBI, and change statuses: Preassigned -> Done
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  pbis
+    checkSpecyficTitle  pbis
+    checkHeader  Backlog
+    checkContent  pbis
+    clickPbiActionButton  new pbi
+    waitFor  addPbiForm
+    checkSpecyficTitle  new pbi
+    checkHeader  Add PBI
+    ${pbi}  fillPbiForm  ${namePBI}  ${descriptionPBI}  ${priority}  ${storyPoints}  ${teamPBI}  ${sprint}
+    ...  ${status}  po
+    clickPbiActionButton  submit form
+    waitFor  pbiListTable
+    checkTitle  Backlog
+    ${pbiId}  getLastPbi
+    checkRowInPbiTable  ${pbi}  ${pbiId}
+    checkPbiDetails  ${pbi}  ${pbiId}
+    checkHeader  ${namePBI}
+    goToPage  pbis
+    selectCheckbox  ${pbiId}
+    clickPbiActionButton  mark as done
+    checkStatusInList  pbi  ${pbiId}  Done
+
+*** Keywords ***
+ClearAfterTest
+    deletePbi  ${pbiId}
+    deleteTestPackage
+    Log  Clearing after test
+    Close browser
+

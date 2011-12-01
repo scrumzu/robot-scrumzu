@@ -1,0 +1,29 @@
+*** Settings ***
+Test Teardown   ClearAfterTest
+Library         Database
+Library         GUILibrary
+
+*** Test Cases ***
+Filters
+    testPackage
+    openScrumzuAtLocalhost  ff
+    Comment  openScrumzuAtSpectre  ff
+    login  owner
+    goToPage  pbis
+    checkContent  filters
+    clickFilterActionButton  select
+    checkContent  filterDialogWindow
+    fillFilterItemForm  1  OR  priority  neq  1
+    clickDialogWindowElement  add filter
+    fillFilterItemForm  2  AND  title  gt  test
+    clickDialogWindowElement  add filter
+    fillFilterItemForm  3  OR  storyPoints  lt  23
+    pause
+    clickDialogWindowElement  close filter
+
+*** Keywords ***
+ClearAfterTest
+    deleteTestPackage
+    Log  Clearing after test
+    Close browser
+
